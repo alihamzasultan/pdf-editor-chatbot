@@ -1,0 +1,16 @@
+{
+  "questions": [
+    {
+      "q2": "What is applicant's name?",
+      "q2_type": "applicant_name"
+    },
+    {
+      "q3": "What is your Resident Address (The place where you actually live)",
+      "q3_type": "resident_address"
+    },
+    {
+      "q4": "What is your Address where your mail goes",
+      "q4_type": "mail_address"
+    }
+  ]
+}
