@@ -1783,6 +1783,34 @@
           height: auto;
       }
   }
+
+
+  #download-doc-btn {
+    position: absolute;
+    left: 0px; /* Position to the right of the upload button */
+    bottom: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    gap: 6px;
+    z-index: 1;
+}
+
+#download-doc-btn:hover {
+    color: #d15e00;
+}
+
+.btn-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
 </style>
 </head>
 <body>
@@ -1843,6 +1871,9 @@
     <div id="chat-input-container">
       <div class="input-wrapper">
           <input  type="text" id="user-input" placeholder="Ask any questions...">
+
+         <!-- Inside your chat-input-container div, near the upload button -->
+
   
           <!-- Microphone Button -->
           <!-- <button id="mic-btn" onclick="startVoiceInput()">
@@ -1865,6 +1896,14 @@
                   <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
           </button>
+
+          <button id="download-doc-btn" class="upload-btn" onclick="downloadFile()">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="btn-text">Download</span>
+          </button>
+          
       </div>
   </div>
         <!-- Image Modal -->
@@ -2373,7 +2412,32 @@ function startNewChat() {
 ////////////
 
 
-
+function downloadFile() {
+    // Show a loading message
+    addChatMessage('Preparing your document for download...', 'bot');
+    
+    // Trigger the download from your Flask endpoint
+    fetch('/download')
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            }
+            throw new Error('Failed to download');
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'GetMyAid_Results.docx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            addChatMessage('Error downloading document: ' + error.message, 'bot');
+        });
+}
     </script>
 </body
 </html>
