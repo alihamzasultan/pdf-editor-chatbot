@@ -121,7 +121,7 @@ from docx import Document
 import os
 import shutil
 import json
-
+import threading
 @app.route('/generate-doc', methods=['POST'])
 def generate_doc():
     try:
@@ -155,6 +155,8 @@ def generate_doc():
         # Save the filled document
         doc.save(output_path)
         print("Filled document saved to:", output_path)
+        timer = threading.Timer(300.0, delete_file, args=[output_path])
+        timer.start()
 
         return jsonify({'message': 'Document generated successfully.'}), 200
 
@@ -185,6 +187,37 @@ def fill_word_template(answers_path='answers.json', template_path='WFNJ-1JEnglis
     doc.save(output_path)
     print("Document filled and saved to:", output_path)
 
+from flask import send_from_directory
+from werkzeug.utils import safe_join
+import os
+
+@app.route('/download', methods=['GET'])
+def download_file():
+    directory = os.path.abspath(os.path.dirname(__file__))
+    filename = 'filled_template.docx'
+    file_path = safe_join(directory, filename)
+    
+    if not os.path.exists(file_path):
+        return "File not found", 404
+    
+    # Schedule file deletion after 5 seconds
+    timer = threading.Timer(5.0, delete_file, args=[file_path])
+    timer.start()
+    
+    return send_from_directory(
+        directory=directory,
+        path=filename,
+        as_attachment=True,
+        download_name='GetMyAid_Results.docx'
+    )
+
+def delete_file(file_path):
+    try:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"Deleted file: {file_path}")
+    except Exception as e:
+        print(f"Error deleting file: {e}")
 
 @app.route("/reset", methods=["POST"])
 def reset_conversation():
